@@ -80,7 +80,7 @@ get_primary_ip_linux() {
   if="NONE"
   route_str="$(ip route get 8.8.8.8 2> /dev/null | head -1)"
   if [ -n "${route_str}" ]; then
-    ip=$(echo "${route_str}" | cut -d' ' -f7)
+    ip=$(echo "${route_str}" | awk '{for (i=1; i<NF; i++) if ($i == "src") {print $(i+1); break}}')
     default_if=$(echo "${route_str}" | awk '{for (i=1; i<NF; i++) if ($i == "dev") {print $(i+1); break}}')
     if=$(nmcli con show --active | grep -h "${default_if}" | awk '{print $(NF-1)}' | head -n 1)
   else
@@ -94,7 +94,7 @@ get_primary_ip_linux() {
     wifi)
       icon="wifi"
       ;;
-    vpn|wireguard)
+    tun|vpn|wireguard)
       icon="vpn"
       ;;
     *)
